@@ -46,7 +46,7 @@ func NewRenderCommand() *cobra.Command {
 	}
 	cmd := &cobra.Command{
 		Use:   "render",
-		Short: "Render kubernetes API server bootstrap manifests, secrets and configMaps",
+		Short: "Render kubernetes API server manifests, secrets and configMaps",
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := renderOpts.Validate(); err != nil {
 				klog.Fatal(err)
@@ -157,6 +157,7 @@ func (r *renderOpts) Run() error {
 		genericrenderoptions.Template{FileName: "defaultconfig.yaml", Content: v410_00_assets.MustAsset(filepath.Join(bootstrapVersion, "kube-apiserver", "defaultconfig.yaml"))},
 		mustReadTemplateFile(filepath.Join(r.generic.TemplatesDir, "config", "bootstrap-config-overrides.yaml")),
 		mustReadTemplateFile(filepath.Join(r.generic.TemplatesDir, "config", "config-overrides.yaml")),
+		mustReadTemplateFile(filepath.Join(r.generic.TemplatesDir, "config", "hosted-config-overrides.yaml")),
 		&renderConfig,
 		nil,
 	); err != nil {

@@ -1,0 +1,61 @@
+apiVersion: kubecontrolplane.config.openshift.io/v1
+kind: KubeAPIServerConfig
+aggregatorConfig:
+  proxyClientInfo:
+    certFile: /etc/kubernetes/secrets/apiserver-proxy.crt
+    keyFile: /etc/kubernetes/secrets/apiserver-proxy.key
+authConfig:
+  requestHeader:
+    clientCA: /etc/kubernetes/secrets/aggregator-signer.crt
+kubeletClientInfo:
+  ca: /etc/kubernetes/secrets/kubelet-client-ca-bundle.crt # this is wired to the KCM CSR, which signs serving and client certs for kubelet
+  certFile: /etc/kubernetes/secrets/kube-apiserver-to-kubelet-client.crt
+  keyFile: /etc/kubernetes/secrets/kube-apiserver-to-kubelet-client.key
+serviceAccountPublicKeyFiles:
+- /etc/kubernetes/secrets/service-account.pub
+servingInfo:
+  certFile: /etc/kubernetes/secrets/kube-apiserver-service-network-server.crt
+  clientCA: /etc/kubernetes/secrets/kube-apiserver-complete-client-ca-bundle.crt
+  keyFile: /etc/kubernetes/secrets/kube-apiserver-service-network-server.key
+  namedCertificates:
+    - names:
+      - "kubernetes"
+      - "kubernetes.default"
+      - "kubernetes.default.svc"
+      - "kubernetes.default.svc.cluster.local"
+      certFile: /etc/kubernetes/secrets/kube-apiserver-service-network-server.crt
+      keyFile: /etc/kubernetes/secrets/kube-apiserver-service-network-server.key
+    - names:
+        - "localhost"
+        - "127.0.0.1"
+        - "::1"
+      certFile: /etc/kubernetes/secrets/kube-apiserver-localhost-server.crt
+      keyFile: /etc/kubernetes/secrets/kube-apiserver-localhost-server.key
+    - certFile: /etc/kubernetes/secrets/kube-apiserver-lb-server.crt
+      keyFile: /etc/kubernetes/secrets/kube-apiserver-lb-server.key
+    - certFile: /etc/kubernetes/secrets/kube-apiserver-internal-lb-server.crt
+      keyFile: /etc/kubernetes/secrets/kube-apiserver-internal-lb-server.key
+storageConfig:
+  ca: /etc/kubernetes/secrets/{{.EtcdServingCA}}
+  certFile: /etc/kubernetes/secrets/etcd-client.crt
+  keyFile: /etc/kubernetes/secrets/etcd-client.key
+  urls: {{range .EtcdServerURLs}}
+  - {{.}}{{end}}
+{{if .ServiceCIDR | len | ne 0}}
+servicesSubnet: {{index .ServiceCIDR 0}}{{end}}
+admission:
+  pluginConfig:
+    {{if .ServiceCIDR }}
+    network.openshift.io/RestrictedEndpointsAdmission:
+      configuration:
+        apiVersion: network.openshift.io/v1
+        kind: RestrictedEndpointsAdmissionConfig
+        restrictedCIDRs: {{range .ServiceCIDR}}
+        - {{.}}{{end}}{{range .ClusterCIDR}}
+        - {{.}}{{end}}
+    {{end}}
+apiServerArguments:
+  feature-gates:
+    - "ExperimentalCriticalPodAnnotation=true"
+    - "SupportPodPidsLimit=true"
+    - "LocalStorageCapacityIsolation=false"
