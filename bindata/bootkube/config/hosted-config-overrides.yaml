@@ -35,6 +35,8 @@ servingInfo:
       keyFile: /etc/kubernetes/secrets/kube-apiserver-lb-server.key
     - certFile: /etc/kubernetes/secrets/kube-apiserver-internal-lb-server.crt
       keyFile: /etc/kubernetes/secrets/kube-apiserver-internal-lb-server.key
+    - certFile: /etc/kubernetes/secrets/kube-apiserver-svc-server.crt
+      keyFile: /etc/kubernetes/secrets/kube-apiserver-svc-server.key
 storageConfig:
   ca: /etc/kubernetes/secrets/{{.EtcdServingCA}}
   certFile: /etc/kubernetes/secrets/etcd-client.crt

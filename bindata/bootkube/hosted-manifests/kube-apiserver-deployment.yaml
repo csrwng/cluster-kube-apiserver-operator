@@ -27,9 +27,6 @@ spec:
         command: ["hyperkube", "kube-apiserver"]
         args:
         - --openshift-config=/etc/kubernetes/config/{{ .ConfigFileName }}
-        - --logtostderr=false
-        - --alsologtostderr
-        - --log-file=/var/log/kube-apiserver/kube-apiserver.log
         volumeMounts:
         - mountPath: /etc/kubernetes/secrets
           name: secrets
