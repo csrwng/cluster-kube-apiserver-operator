@@ -29,7 +29,7 @@ spec:
         - --openshift-config=/etc/kubernetes/config/{{ .ConfigFileName }}
         - --logtostderr=false
         - --alsologtostderr
-        - --log-file=/var/log/bootstrap-control-plane/kube-apiserver.log
+        - --log-file=/var/log/kube-apiserver/kube-apiserver.log
         volumeMounts:
         - mountPath: /etc/kubernetes/secrets
           name: secrets
@@ -40,8 +40,9 @@ spec:
         - mountPath: /etc/kubernetes/config
           name: config
           readOnly: true
-        - mountPath: /var/log/bootstrap-control-plane
+        - mountPath: /var/log/kube-apiserver
           name: logs
+        workingDir: /var/log/kube-apiserver
         livenessProbe:
           httpGet:
             scheme: HTTPS
